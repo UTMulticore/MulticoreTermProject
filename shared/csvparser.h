@@ -1,30 +1,34 @@
 #ifndef __CSVPARSER__H
 #define __CSVPARSER__H
 
-struct FloatMatrix{
-
+class FloatMatrix{
+    
+    public:
     float **mat; 
-    int num_rows; 
-    int num_cols; 
+    int row_size; 
+    int col_size; 
+
+    //Constructor for user generated matrix
+    //input: row size and column size
+    //output: none
+    FloatMatrix(int row_size, int col_size);
+    
+    //Constructor for matrix generated from file
+    //input: csv/matrix file name
+    //output: noen
+    FloatMatrix(const char* filename);
+
+    //prints matrix
+    //input:none
+    //output: matrix to standard out 
+    void print(void);
+
+   
+    //private/helper functions
+    private:
+    int get_row_size(const char* str_array);
+    int get_col_size(const char* str_array);
 
 }; 
 
-
-typedef struct FloatMatrix FloatMatrix; 
-
-//Turns a csv file into a matrix
-//input: name of csv file
-//output: matrix
-FloatMatrix *csv_to_matrix(const char *filename);
-
-
-//Frees allocated space for FloatMatrix
-//input: FloatMatrix pointer
-//output: none
-void free_FloatMatrix(FloatMatrix *float_mat);
-
-//prints FloatMatrix
-//input: FloatMatrix reference
-//ouotput: contents of matrix and size (to stdout)
-void print_FloatMatrix(FloatMatrix *float_mat);
 #endif
