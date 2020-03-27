@@ -1,30 +1,30 @@
 #ifndef __CSVPARSER__H
 #define __CSVPARSER__H
 
-struct IntMatrix{
+struct FloatMatrix{
 
-    int **mat; 
+    float **mat; 
     int num_rows; 
     int num_cols; 
 
 }; 
 
 
-typedef struct IntMatrix IntMatrix; 
+typedef struct FloatMatrix FloatMatrix; 
 
 //Turns a csv file into a matrix
 //input: name of csv file
 //output: matrix
-IntMatrix *csv_to_matrix(const char *filename);
+FloatMatrix *csv_to_matrix(const char *filename);
 
 
-//Frees allocated space for IntMatrix
-//input: IntMatrix pointer
+//Frees allocated space for FloatMatrix
+//input: FloatMatrix pointer
 //output: none
-void free_IntMatrix(IntMatrix *mat);
+void free_FloatMatrix(FloatMatrix *float_mat);
 
-//prints IntMatrix
-//input: IntMatrix reference
+//prints FloatMatrix
+//input: FloatMatrix reference
 //ouotput: contents of matrix and size (to stdout)
-void print_IntMatrix(IntMatrix *int_mat);
+void print_FloatMatrix(FloatMatrix *float_mat);
 #endif

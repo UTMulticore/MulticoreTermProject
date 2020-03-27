@@ -8,7 +8,7 @@
 int _get_row_num(const char *str_array);
 int _get_col_num(const char *str_array);
 
-IntMatrix *csv_to_matrix(const char *filename){
+FloatMatrix *csv_to_matrix(const char *filename){
     FILE *fp = fopen(filename,"r");
 
     fseek(fp,0L,SEEK_END);
@@ -24,10 +24,10 @@ IntMatrix *csv_to_matrix(const char *filename){
     int num_row = _get_row_num(buffer);
     int num_col = _get_col_num(buffer);
 
-    int **mat = (int**) malloc(sizeof(int*)*num_row);
+    float **mat = (float**) malloc(sizeof(float*)*num_row);
     
     for(int i = 0 ; i < num_row ; i++)
-        mat[i] = (int*) malloc(sizeof(int)*num_col);
+        mat[i] = (float*) malloc(sizeof(float)*num_col);
     
     char *saveptr1, *saveptr2; 
     char *c1 = strtok_r(buffer,"\n",&saveptr1);
@@ -36,7 +36,7 @@ IntMatrix *csv_to_matrix(const char *filename){
         char *c2 = strtok_r(c1, ",",&saveptr2);
         int k = 0; 
         while(c2 != NULL){
-          mat[i][k] = atoi(c2);  
+          mat[i][k] = atof(c2);  
           c2 = strtok_r(NULL,",",&saveptr2);
           k++;  
         }
@@ -45,34 +45,34 @@ IntMatrix *csv_to_matrix(const char *filename){
     }
 
 
-    IntMatrix *int_mat = (IntMatrix*) malloc(sizeof(IntMatrix));
+    FloatMatrix *float_mat = (FloatMatrix*) malloc(sizeof(FloatMatrix));
 
-    int_mat->mat = mat; 
-    int_mat->num_rows = num_row;
-    int_mat->num_cols = num_col; 
+    float_mat->mat = mat; 
+    float_mat->num_rows = num_row;
+    float_mat->num_cols = num_col;
 
-    return int_mat;
+    return float_mat;
     
 }
 
-void free_IntMatrix(IntMatrix *int_mat){
+void free_FloatMatrix(FloatMatrix *float_mat){
 
 
-    for(int i = 0; i < int_mat->num_rows ; i++)
-        free(int_mat->mat[i]); 
+    for(int i = 0; i < float_mat->num_rows ; i++)
+        free(float_mat->mat[i]); 
 
-    free(int_mat);
+    free(float_mat);
 
 
 }
 
 
-void print_IntMatrix(IntMatrix *int_mat){
+void print_FloatMatrix(FloatMatrix *float_mat){
     
-    for(int i = 0 ; i < int_mat->num_rows ; i++){
+    for(int i = 0 ; i < float_mat->num_rows ; i++){
         printf("%i [ ",i);
-        for(int k = 0; k < int_mat->num_cols; k++){
-           printf("%i ",int_mat->mat[i][k]);
+        for(int k = 0; k < float_mat->num_cols; k++){
+           printf("%f ",float_mat->mat[i][k]);
         }
         printf("]\n");
 
