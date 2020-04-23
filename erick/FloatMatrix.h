@@ -12,10 +12,15 @@ class FloatMatrix{
     //input: row size and column size
     //output: none
     FloatMatrix(int row_size, int col_size);
+
+    //Constructor for matrix with a pointer to data
+    //input: row size and column size along with already generated data (must be of size row_size*col_size)
+    //output: none
+    FloatMatrix(int row_size,int col_size,float *mat);
     
     //Constructor for matrix generated from file
     //input: csv/matrix file name
-    //output: noen
+    //output: none
     FloatMatrix(const char* filename);
 
     //Destructor for matrix

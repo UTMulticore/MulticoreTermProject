@@ -11,8 +11,9 @@
 
 FloatMatrix* Regression::fit(FloatMatrix *x_train, FloatMatrix *y_train){
 
-    
-       return transpose_mult(x_train);
+      int n_x = x_train->row_size; 
+      FloatMatrix *trans_mult_x =  transpose_x_mult_x(x_train);
+      FloatMatrix *inv = new FloatMatrix(n_x,n_x,inverse_of_matrix(trans_mult_x->mat,n_x));
 
 
 }

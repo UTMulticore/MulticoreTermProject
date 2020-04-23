@@ -11,6 +11,14 @@ FloatMatrix::FloatMatrix(int row_size, int col_size){
     mat = new float [row_size*col_size];
 }
 
+
+FloatMatrix::FloatMatrix(int row_size, int col_size,float *mat){
+    this->row_size = row_size;
+    this->col_size = col_size;
+    this->mat = mat;
+
+}
+
 FloatMatrix::FloatMatrix(const char* filename){
 
     FILE *fp = fopen(filename,"r");
