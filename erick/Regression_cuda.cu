@@ -28,6 +28,8 @@ FloatMatrix* transpose_x_mult_x(FloatMatrix *fm){
 
         int rs = fm->row_size;
         int cs = fm->col_size;
+	int t_rs = cs;
+	int t_cs = rs;
         cudaMalloc((void**) &d_arr_tr, FSIZE*rs*cs);
         cudaMalloc((void**) &d_arr, FSIZE*rs*cs);
 
@@ -43,7 +45,7 @@ FloatMatrix* transpose_x_mult_x(FloatMatrix *fm){
 
         blocks = mult_size/THREAD_SIZE + (mult_size%THREAD_SIZE != 0);
 
-        d_mat_mult_t<<<blocks,THREAD_SIZE>>>(d_mult_arr,d_arr_tr,d_arr,rs,cs);
+        d_mat_mult<<<blocks,THREAD_SIZE>>>(d_mult_arr,d_arr_tr,d_arr,t_rs,t_cs,rs,cs);
         cudaMemcpy(mult_result->mat,d_mult_arr,FSIZE*mult_size,cudaMemcpyDeviceToHost);
 
         cudaFree(d_arr_tr);
@@ -75,16 +77,6 @@ FloatMatrix* transpose_x_mult_y(FloatMatrix *x, FloatMatrix *y){
 	cudaMemcpy(d_arr_x,x->mat,FSIZE*x_rs*x_cs,cudaMemcpyHostToDevice);
 	d_transpose<<<blocks,THREAD_SIZE>>>(d_arr_tr,d_arr_x,x_rs,x_cs);	
 
-	/*For debugging */
-	/*	
-	FloatMatrix *trans = new FloatMatrix(xt_rs,xt_cs);
-	cudaMemcpy(trans->mat,d_arr_tr,FSIZE*xt_rs*xt_cs,cudaMemcpyDeviceToHost);
-	trans->print();
-	printf("\n");
-	delete(trans);
-	*/
-	/*               */
-
 	
 	FloatMatrix *mult_result = new FloatMatrix(xt_rs,y_cs);	
 	int mult_size = xt_rs*y_cs;
@@ -106,6 +98,39 @@ FloatMatrix* transpose_x_mult_y(FloatMatrix *x, FloatMatrix *y){
 	cudaFree(d_mult_arr);
 	return mult_result;
 }
+
+
+/* Regular matrix multiplication XY */
+FloatMatrix* matrix_x_mult_y(FloatMatrix *x, FloatMatrix *y){
+	float *d_mult,*d_x_arr,*d_y_arr;
+
+	int x_rs = x->row_size;
+	int x_cs = x->col_size;
+	int y_rs = y->row_size;
+	int y_cs = y->col_size;
+
+        cudaMalloc((void**) &d_x_arr, FSIZE*x_rs*x_cs);
+	cudaMalloc((void**) &d_y_arr, FSIZE*y_rs*y_cs);
+	cudaMalloc((void**) &d_mult,FSIZE*x_rs*y_cs);
+		
+	cudaMemcpy(d_x_arr,x->mat,FSIZE*x_rs*x_cs,cudaMemcpyHostToDevice);
+	cudaMemcpy(d_y_arr,y->mat,FSIZE*y_rs*y_cs,cudaMemcpyHostToDevice);	
+	
+	int mult_size = x_rs*y_cs;
+	int blocks = mult_size/THREAD_SIZE + (mult_size%THREAD_SIZE != 0);
+	FloatMatrix *mult_result = new FloatMatrix(x_rs,y_cs);
+
+	d_mat_mult<<<blocks,THREAD_SIZE>>>(d_mult,d_x_arr,d_y_arr,x_rs,x_cs,y_rs,y_cs);	
+	cudaMemcpy(mult_result->mat,d_mult,FSIZE*mult_size,cudaMemcpyDeviceToHost);
+
+	cudaFree(d_mult);
+	cudaFree(d_x_arr);
+	cudaFree(d_y_arr);
+
+	return mult_result;
+}
+
+
 
 
 /*modified code from geeks for geeks */
@@ -230,9 +255,9 @@ float* adjoint(float* mat, int n){
 
 /* code modified from geeks for geeks URL: // Function to calculate and store inverse, returns false if */
 // matrix is singular 
-float* inverse_of_matrix(float* mat, int n) 
-{ 
-
+FloatMatrix* inverse_of_matrix(FloatMatrix *fm){ 
+    float *mat = fm->mat;
+    int n = fm->row_size;
     float *inv = new float[n*n];
     float det = determinant_of_matrix(mat, n); 
     if (det == 0) 
@@ -249,7 +274,9 @@ float* inverse_of_matrix(float* mat, int n)
         for (int j=0; j<n; j++) 
             inv[i*n +j] = adj[i*n+j]/det; 
     free(adj);
-    return inv;
+
+    FloatMatrix *result = new FloatMatrix(n,n,inv);
+    return result;
   
 } 
 
