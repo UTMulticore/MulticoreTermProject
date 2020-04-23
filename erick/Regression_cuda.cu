@@ -308,7 +308,7 @@ __global__ void d_mat_mult(float *dest, float *x_arr, float* y_arr, int x_rs, in
 	int d_row,d_col;
 	if( i < x_rs*y_cs){
 		shared[i] = 0;
-		d_row = i/x_cs;
+		d_row = i/y_cs;
 		d_col = i%y_cs;
 	
 	
