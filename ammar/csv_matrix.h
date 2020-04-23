@@ -8,7 +8,9 @@
 // IDEAS: 
 // This first class design will be pull everything into memory. 
 // The second design will pull from memory as needed
-// The third will be combination of the two, having only parts of it in memory. 
+// The third will be combination of the two, having only parts of it in memory.
+
+#pragma once 
 
 #include <cstddef>
 #include <fstream>
@@ -32,13 +34,12 @@ class CSVMatrix {
   std::vector<std::string> col_names_;
 
  public:
-  // By default, lazy initialization of Matrix.  
+  // By default, lazy initialization of Matrix.
   CSVMatrix(const char* file_path, bool forced_load=false);
 
   // Maybe an LRU for loading in huge datasets ? Kind've like paging and swapping
   unsigned int getRows() const {return num_rows_;}
   unsigned int getCols() const {return num_columns_;}
-
 
   // Returns a random row from the 
   std::vector<std::string> sample();
