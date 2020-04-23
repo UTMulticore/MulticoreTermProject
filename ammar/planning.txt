@@ -1,0 +1,10 @@
+Oksothe plan is to implement fp growth serially, then with parallel optimizations.
+If I find fp to be too difficult, then I will do eclat !
+
+
+Let's briefly recap about fp growth a little bit. 
+
+step 1: Build a compact data structure called an fp-tree.
+ -> need 2 passes over the data.
+
+step 2:extract frequent items directly from the fp tree
