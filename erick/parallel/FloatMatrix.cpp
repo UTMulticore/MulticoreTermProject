@@ -9,6 +9,9 @@ FloatMatrix::FloatMatrix(int row_size, int col_size){
     this->row_size = row_size; 
     this->col_size = col_size;
     mat = new float [row_size*col_size];
+    for(int i = 0 ; i < row_size; i++)
+        for(int j = 0 ; j < col_size; j++)
+            mat[i*col_size +j] = 0;
 }
 
 
@@ -75,12 +78,27 @@ void FloatMatrix::print(void){
 
 }
 
+void FloatMatrix::printcsv(void){
+    for(int i = 0 ; i < row_size; i++){
+        for(int j = 0 ; j < col_size-1; j++){
+            printf("%f,",mat[i*col_size + j]);
+
+        }
+        
+        if(i != row_size -1)
+            printf("%f\n",mat[i*col_size + (col_size -1)]);
+        else
+            printf("%f",mat[i*col_size + (col_size -1)]);
+    }
+
+}
+
 /* private functions */
 
 
 int FloatMatrix::get_row_size(const char *str_array){
     
-    int count = 0; 
+    int count = 1; 
     for(int i = 0 ; str_array[i] != '\0'; i++){
     
         if(str_array[i] == '\n' )

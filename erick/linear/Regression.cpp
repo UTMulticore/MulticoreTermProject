@@ -12,17 +12,16 @@
 using namespace std;
 
 /*private helper methods for regression*/
-//FloatMatrix *transpose_x_mult_x(FloatMatrix *fm);
 FloatMatrix *inverse_of_matrix(FloatMatrix *fm);
 FloatMatrix *transpose_x_mult_y(FloatMatrix *x, FloatMatrix *y);
 FloatMatrix *matrix_x_mult_y(FloatMatrix *x, FloatMatrix *y);
 FloatMatrix *transpose_matrix(FloatMatrix *fm);
 float determinant_of_matrix(float *omat,int n);
-//float determinant_of_matrix(float *A,int n);
 float* adjoint(float* mat, int n);
 void getCofactor(float *mat, float *temp, int p, int q, int n);
 
 
+/* REGRESSION CLASS METHODS */
 FloatMatrix* Regression::fit(FloatMatrix *x_train, FloatMatrix *y_train){
 
     int n_x = x_train->row_size; 
@@ -30,13 +29,23 @@ FloatMatrix* Regression::fit(FloatMatrix *x_train, FloatMatrix *y_train){
     /* (X^T X)^-1  = A*/
     FloatMatrix *trans_mult_x = transpose_x_mult_y(x_train,x_train);
 
+    #ifdef DEBUG
+    cout << "The transpose of matrix x*xis: " << endl;
+    trans_mult_x->print();
+    #endif
+
     FloatMatrix *inv = inverse_of_matrix(trans_mult_x);
+
     if(inv == NULL){
         delete(trans_mult_x);
         return NULL;
     }
 
 
+    #ifdef DEBUG
+    cout << "The inverse of the matrix (X^TX)^-1 is: " << endl;
+    inv->print();
+    #endif
 
     /*  X^T Y * = B*/ 
     FloatMatrix *trans_x_mult_y = transpose_x_mult_y(x_train,y_train);
@@ -52,14 +61,17 @@ FloatMatrix* Regression::fit(FloatMatrix *x_train, FloatMatrix *y_train){
 }
 
 
-FloatMatrix* Regression::predict(FloatMatrix *betas, FloatMatrix *data){
+FloatMatrix* Regression::predict(FloatMatrix *data, FloatMatrix *weights){
 
-	return transpose_x_mult_y(betas,data);
+	return transpose_x_mult_y(data,weights);
 }
 
 
-/* code modified from geeks for geeks URL: // Function to calculate and store inverse, returns false if */
-// matrix is singular 
+/*HELPER FUNCTIONS (not part of regression class directly)*/
+
+
+/* code modified from geeks for geeks URL : https://www.geeksforgeeks.org/adjoint-inverse-matrix/ */
+/* Function to calculate and store inverse, returns null if matrix is singular */
 FloatMatrix* inverse_of_matrix(FloatMatrix *fm){ 
     float *mat = fm->mat;
     int n = fm->row_size;
@@ -85,8 +97,7 @@ FloatMatrix* inverse_of_matrix(FloatMatrix *fm){
   
 } 
 
-/*modified code from geeks for geeks*/
-
+/*modified code from geeks for geeks  URL : https://www.geeksforgeeks.org/adjoint-inverse-matrix/ */
 void getCofactor(float *mat, float *temp, int p, int q, int n){ 
     int i = 0, j = 0; 
   
@@ -147,7 +158,9 @@ float* adjoint(float* mat, int n){
     return adj;
 } 
 
-/*Modified code from geeks for geeks*/
+
+
+/*Modified code from geeks for geeks URL : https://www.geeksforgeeks.org/adjoint-inverse-matrix/ */
 float determinant_of_matrix(float *omat, int n){
     
     float *mat = new float[n*n];
@@ -156,7 +169,7 @@ float determinant_of_matrix(float *omat, int n){
             mat[i*n+j] = omat[i*n+j];
     float num1,num2;
     int index;
-    float det = 1,total = 1; // Initialize result   
+    double det = 1,total = 1; // Initialize result   
         
     // temporary array for storing row   
     float temp[n + 1];   
@@ -230,7 +243,9 @@ float determinant_of_matrix(float *omat, int n){
     
 }
 
+/* my code written */
 
+/*transposes matrix x and then multiplies it with matrix y */
 FloatMatrix *transpose_x_mult_y(FloatMatrix *x, FloatMatrix *y){
     FloatMatrix *x_tr = transpose_matrix(x);
 
@@ -239,34 +254,9 @@ FloatMatrix *transpose_x_mult_y(FloatMatrix *x, FloatMatrix *y){
     return r;
 
 }
-/*
-float determinant_of_matrix(float *A, int n)
-{
-    int D = 0; // Initialize result
 
-    //  Base case : if matrix contains single element
-    if (n == 1)
-        return A[0];
 
-    float *temp = new float[n*n]; // To store cofactors
-
-    int sign = 1;  // To store sign multiplier
-
-     // Iterate for each element of first row
-    for (int f = 0; f < n; f++)
-    {
-        // Getting Cofactor of A[0][f]
-        getCofactor(A, temp, 0, f, n);
-        D += sign * A[f] * determinant_of_matrix(temp, n - 1);
-
-        // terms are to be added with alternate sign
-        sign = -sign;
-    }
-    delete(temp);
-    return D;
-}
-*/
-
+/* transposes matrix given */
 FloatMatrix *transpose_matrix(FloatMatrix *fm){ 
     
     FloatMatrix *trans = new FloatMatrix(fm->col_size,fm->row_size);
@@ -282,6 +272,7 @@ FloatMatrix *transpose_matrix(FloatMatrix *fm){
     return trans;
 }
 
+/* multiplies matrix x with matrix y */
 FloatMatrix *matrix_x_mult_y(FloatMatrix *x, FloatMatrix *y){
     
     int mult_rs = x->row_size;
@@ -297,8 +288,3 @@ FloatMatrix *matrix_x_mult_y(FloatMatrix *x, FloatMatrix *y){
 
    return mult;
 }
-
-
-
-
-        

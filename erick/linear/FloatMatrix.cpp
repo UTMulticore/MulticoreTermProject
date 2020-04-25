@@ -98,7 +98,7 @@ void FloatMatrix::printcsv(void){
 
 int FloatMatrix::get_row_size(const char *str_array){
     
-    int count = 0; 
+    int count = 1; 
     for(int i = 0 ; str_array[i] != '\0'; i++){
     
         if(str_array[i] == '\n' )

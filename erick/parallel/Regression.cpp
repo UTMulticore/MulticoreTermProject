@@ -42,9 +42,9 @@ FloatMatrix* Regression::fit(FloatMatrix *x_train, FloatMatrix *y_train){
 }
 
 
-FloatMatrix* Regression::predict(FloatMatrix *betas, FloatMatrix *data){
+FloatMatrix* Regression::predict(FloatMatrix *data, FloatMatrix *weights){
 
-	return transpose_x_mult_y(betas,data);
+	return matrix_x_mult_y(data,weights);
 }
 
 

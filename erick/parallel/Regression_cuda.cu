@@ -15,7 +15,6 @@ __global__ void d_transpose(float *d_arr_tr,float *d_arr, int rs, int cs);
 
 /*multiplies matrix srt and dest to dest */
 
-__global__ void d_mat_mult_t(float *dest, float *arr_t, float *arr, int rs, int cs);
 __global__ void d_swap_row(float* row1,float* row2,int rs);
 __global__ void d_copy_row(float* dst, float* src, int rs);
 __global__ void d_det_mult(float *mat, float *temp, float num1, float num2,int rs);
@@ -154,6 +153,7 @@ float determinant_of_matrix(float *mat, int n){
 		if(index == n)
 			continue;
 		if(index != i){
+                        /*Parallized code , use to be linear */
 			blocks = n/THREAD_SIZE + (n%THREAD_SIZE != 0);
 			cudaMemcpy(d_arr,mat_cpy,FSIZE*n*n,cudaMemcpyHostToDevice);
 			d_swap_row<<<blocks,THREAD_SIZE>>>(&d_arr[index*n],&d_arr[i*n],n);
@@ -163,11 +163,13 @@ float determinant_of_matrix(float *mat, int n){
 		
 		
 
+                /*Parallized code , use to be linear */
 		memcpy(temp,&mat_cpy[i*n],FSIZE*n);
 		cudaMemcpy(d_temp,temp,FSIZE*n+1,cudaMemcpyHostToDevice);
 					
 		for(int j = i+1; j < n; j++){
 			
+                        /*Parallized code , use to be linear */
 			num1 = temp[i];
 			num2 = mat_cpy[j*n + i]; 
 			blocks = n/THREAD_SIZE + (n%THREAD_SIZE != 0);
@@ -253,8 +255,8 @@ float* adjoint(float* mat, int n){
     return adj;
 } 
 
-/* code modified from geeks for geeks URL: // Function to calculate and store inverse, returns false if */
-// matrix is singular 
+/* code modified from geeks for geeks URL: https://www.geeksforgeeks.org/adjoint-inverse-matrix */
+// Function to calculate and store inverse, returns false if matrix is singular 
 FloatMatrix* inverse_of_matrix(FloatMatrix *fm){ 
     float *mat = fm->mat;
     int n = fm->row_size;
@@ -280,6 +282,10 @@ FloatMatrix* inverse_of_matrix(FloatMatrix *fm){
   
 } 
 
+
+/* CUDA fuction */
+
+/*Transposes a matrix*/
 __global__ void d_transpose(float *d_arr_tr,float *d_arr, int rs, int cs){
 
         int i = blockIdx.x*blockDim.x + threadIdx.x;
@@ -295,38 +301,7 @@ __global__ void d_transpose(float *d_arr_tr,float *d_arr, int rs, int cs){
 
 }
 
-
-__global__ void d_mat_mult_t(float *dest, float *arr_t, float *arr, int rs, int cs){
-
-
-    int i = blockIdx.x*blockDim.x + threadIdx.x;
-
-
-    int cs_t = rs;
-    int rs_t = cs;
-
-    __shared__ float shared[THREAD_SIZE];
-
-    int d_row; 
-    int d_col;
-    if( i < rs_t*cs){
-            shared[i] = 0;
-            d_row = i/cs;
-            d_col = i%cs;
-    
-
-        for(int k = 0 ; k < rs ; k++){
-           shared[i] += arr_t[(d_row*cs_t)+k]*arr[(k*cs) + d_col];
-            __syncthreads();
-        }
-
-        dest[i] = shared[i];
-
-
-    }
- 
-}
-
+/*multiplies two matrices together and puts them into destination */ 
 __global__ void d_mat_mult(float *dest, float *x_arr, float* y_arr, int x_rs, int x_cs, int y_rs, int y_cs){
 
 	int  i = blockIdx.x*blockDim.x + threadIdx.x;
@@ -350,6 +325,8 @@ __global__ void d_mat_mult(float *dest, float *x_arr, float* y_arr, int x_rs, in
 	
 }
 
+
+/* swaps rows of two matrices */
 __global__ void d_swap_row(float *row1,float *row2,int rs){
 
 	__shared__ float shared[THREAD_SIZE];
@@ -365,6 +342,8 @@ __global__ void d_swap_row(float *row1,float *row2,int rs){
 
 }
 
+
+/* copies a row from one matrix to another */
 __global__ void d_copy_row(float* dst, float* src, int rs){
 
 	
@@ -375,6 +354,7 @@ __global__ void d_copy_row(float* dst, float* src, int rs){
 
 }
 
+/* code used to parallize code form geeks for geeks implementation of finding the determinant of matrix*/
 __global__ void d_det_mult(float *mat, float *temp, float num1, float num2,int rs){
 	
     	int i = blockIdx.x*blockDim.x + threadIdx.x;
