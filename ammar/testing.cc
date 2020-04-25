@@ -3,6 +3,7 @@
 #include "stopwatch.h"
 
 #include <iostream>
+#include <string>
 
 int main(int argc, const char** argv) {
   Stopwatch t;
@@ -10,7 +11,7 @@ int main(int argc, const char** argv) {
   bool forced_load = true;
 
   try {
-    CSVMatrix matrix("data/sample/small.csv", forced_load);
+    CSVMatrix<std::string> matrix("data/sample/small.csv", forced_load);
     matrix.dumpMatrix();
 
   } 

@@ -1,6 +1,5 @@
 // well I think the idea, with NDEBUG is that with one flag we can remove all
 // the asserts. 
-#ifndef NDEBUG      // If NDEBUG was defined , you probably don't want this stuff.
 #ifndef NO_DEBUG_H  // But maybe you still want asserts... 
 
 #pragma once
@@ -15,5 +14,4 @@ std::ostream& operator<<(std::ostream& lhs, const std::vector<T>& rhs) {
   std::cout << "\n";
 }
 
-#endif
 #endif

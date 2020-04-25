@@ -6,24 +6,8 @@
 /**
   Small Wrapper of C++ clock functionality. Intended to be used for basic profiling.
   
-  TimeInterval is a POD which contains
 */
 
-/** Calculate Potential overflow.
-
-
-
-*/
-struct TimeInterval {
-  unsigned int seconds_;
-  unsigned int milliseconds_;
-  unsigned int microseconds_;
-  unsigned int nanoseconds_;
-
-  static double totalTime(const TimeInterval& t) {
-    return t.seconds_ + t.milliseconds_ * 1e-3 + t.microseconds_ * 1e-6 + t.nanoseconds_ * 1e-9;
-  }
-};
 
 struct Stopwatch {
 

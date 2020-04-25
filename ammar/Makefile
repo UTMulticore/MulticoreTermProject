@@ -13,3 +13,5 @@ all: csv_matrix.h stopwatch.h
 
 # testing.o : testing.cc
 # 	$(CC) $(CFLAGS) testing.cc
+
+# clean: 
