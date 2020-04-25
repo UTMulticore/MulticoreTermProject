@@ -1,0 +1,41 @@
+Multicore Computing - FINAL PROJ - Linear Regression Program
+
+This is the linear (Non-Parallel) version of Linear Regression
+
+The main idea behind this program is the closed form of Linear Regression (X^T*X)^-1 * X^T*Y
+
+
+To compile the program simply run make and the MakeFile will take care of the rest
+
+In order to run linear regression on data we can run
+
+    ./program.o -f x.csv y.csv
+
+The -f flag stands for "fit" because similar to python libraries i made it so that you can "fit" data and "predict" (more on prediction later)
+
+x.csv - This contains the training data (or samples) that we want to use for linear regression (Note that (X^T*X)^-1 must be invertible)
+
+y.csv - This contains the proper outputs or "labels" 
+
+This program will output the "weights or Betas" of the linear Regression. These can be used for prediction
+
+    ./program -p weights.csv data.csv
+
+The weights are the ones found previously and the data is samples you want to predict the value for. In the data csv a row is considered one sample so, n samples is n rows
+
+examples: 
+There is one data science example, run this scripts to check it out: 
+temp.py
+
+there are four examples to test the efficiency of the program, run the script "ten.py" to see get a fell how you can run the other csv's.
+
+
+IMPORTANT NOTE:
+* If the diagonal indexes are too large it may cause a float overflow or "infinity"
+
+*Parsing is very sensitive so follow the next guidelines:
+- Do not have spaces between values in csv files i.e. 1,4 is ok but 1, 4 is not
+- Do not put eof or new line at end of csv file
+- matrix columns are calculated by number_of_row_commas + 1
+- matrix rows are calculated by number_of_new_lines + 1
+
