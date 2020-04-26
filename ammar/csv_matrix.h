@@ -1,10 +1,7 @@
-// This file holds everything to do with data i/o.
-
-// Both of my datasets will be csv files. So I will be desigining these
-// two classes first.
-
+//
+//  csv_matrix.h
+// 
 // Author: Ammar Sheikh
-
 
 #pragma once 
 
@@ -42,6 +39,11 @@
 
 
         For now lets just assume its std::string, std::int, or std::double
+
+
+
+        How to handle huge datasets ? Maybe some sort of swapping ?
+        with LRU ?
 
 */
 
@@ -84,9 +86,6 @@ class CSVMatrix {
 
   CSVMatrix& operator=(const CSVMatrix&) = delete;
 
-
-  // Maybe an LRU for loading in huge datasets ? Kind've like paging and swapping
-
   // ACCESSORS
   std::size_t getRows() const noexcept { return num_rows_; }
   std::size_t getCols() const noexcept { return num_columns_; }
@@ -98,9 +97,6 @@ class CSVMatrix {
     return &data_matrix_[row*num_columns_]; 
   }
 
-
-
-  // Returns a copy of a row in Matrix
   std::vector<T> sample();
   std::vector<T> sample(std::size_t idx);
 
@@ -110,15 +106,11 @@ class CSVMatrix {
 
   // Applies value to all rows in Matrix.
 
-
-
-
-  // TODO; REMOVE!
   void dumpMatrix();
 };
 
 
-// What should happen to these ?
+// Move this somewehere else on project end.
 static std::size_t GetFileSize(const char* path) {
   struct stat ret;
   int rc = stat(path, &ret);
@@ -139,19 +131,23 @@ static std::size_t GetFileSize(const char* path) {
 // but is there any other benefit ?
 
 [[maybe_unused]] static void LoadCSVLine(std::string& csv_line, 
-                        std::vector<std::string>& data) {
+                        std::vector<std::string>& data, std::size_t bytes_read) {
+  //std::cout << "bytes_read" << bytes_read << "\n";
   std::size_t position = 0;
   std::size_t end_position = 0;
 
   while(end_position != std::string::npos) {
     end_position = csv_line.find(',', position);
-    data.push_back(csv_line.substr(position, end_position-position));
+    if (end_position == std::string::npos) // <------------------------------ This a bad temporary solution. Fix this for all 3.
+      data.push_back(csv_line.substr(position, bytes_read-position));
+    else
+      data.push_back(csv_line.substr(position, end_position-position));
     position = end_position + 1;
   }
 }
 
 [[maybe_unused]] static void LoadCSVLine(std::string& csv_line, 
-                        std::vector<int>& data) {
+                        std::vector<int>& data, std::size_t bytes_read) {
   std::size_t position = 0;
   std::size_t end_position = 0;
 
@@ -164,7 +160,7 @@ static std::size_t GetFileSize(const char* path) {
 
 
 [[maybe_unused]] static void LoadCSVLine(std::string& csv_line, 
-                        std::vector<double>& data) {
+                        std::vector<double>& data, std::size_t bytes_read) {
   std::size_t position = 0;
   std::size_t end_position = 0;
 
@@ -213,7 +209,7 @@ void CSVMatrix<T>::InitMatrix() {
   int rows = 0;
   while (!file_stream_.eof()) {
     file_stream_.getline(&buffer[0], buffer_size);
-    LoadCSVLine(buffer, data_matrix_);
+    LoadCSVLine(buffer, data_matrix_, file_stream_.gcount());
     buffer.replace(0, buffer_size, buffer_size, '\0');
     ++rows;
   }
@@ -246,7 +242,7 @@ void CSVMatrix<T>::dumpMatrix() {
   std::cout << "DIMS: " << num_rows_ << " " << num_columns_ << "\n";
   for (std::size_t i=0; i<num_rows_; i++) {
     for (std::size_t j=0; j<num_columns_; j++) {
-      std::cout << data_matrix_[i*num_columns_ + j] << " ";
+      std::cout << data_matrix_[i*num_columns_ + j] << ", ";
     }
     std::cout << "\n";
   }
