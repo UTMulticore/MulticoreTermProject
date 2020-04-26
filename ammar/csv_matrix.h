@@ -6,11 +6,6 @@
 // Author: Ammar Sheikh
 
 
-// IDEAS: 
-// This first design will be pull everything into memory. 
-// The second design will pull from memory as needed
-// The third will be combination of the two, having only parts of it in memory.
-
 #pragma once 
 
 #include <cassert>
@@ -21,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <system_error>
+#include <type_traits>
 #include <vector>
 
 #include <sys/types.h>
@@ -40,28 +36,48 @@
 
         Fix Style !!!!! <------- Function names are mixed case.
 
+
+        Its not easy to construct objects of a type that you don't know.
+        What if you don't know how to construct the object ???? I'm confusing myself here.
+
+
+        For now lets just assume its std::string, std::int, or std::double
+
 */
 
 
 template<class T>
 class CSVMatrix {
 
+  static_assert(std::is_same<T, std::string>::value 
+                || std::is_same<T, int>::value
+                || std::is_same<T, double>::value, 
+                "Currently Unsupported type." 
+                "Try string, double, or int");
+
  private:  
+
+
   std::ifstream file_stream_;     // system agnostic.  
   std::vector<T> data_matrix_;    // convenience, but don't need size/cap 
-  
+
+  std::string file_name_;
+  std::size_t file_byte_size_;
+
+  std::vector<std::string> col_names_;
   std::size_t num_rows_;   
   std::size_t num_columns_;
   
-  std::size_t file_byte_size_;
-  std::string file_name_;
-  std::vector<std::string> col_names_;
-
   bool is_loaded_;
 
+  
   void InitMatrix();
-
+  
  public:
+
+  typedef T matrix_type;
+
+
   // By default, lazy initialization of Matrix.
   CSVMatrix(const char* file_path, bool forced_load=false);
   ~CSVMatrix();
@@ -75,6 +91,15 @@ class CSVMatrix {
   std::size_t getRows() const noexcept { return num_rows_; }
   std::size_t getCols() const noexcept { return num_columns_; }
 
+  // Return a pointer to start of row.
+  T* operator[](std::size_t row){
+    assert(is_loaded_);
+    assert(row >=0 && row < num_rows_);
+    return &data_matrix_[row*num_columns_]; 
+  }
+
+
+
   // Returns a copy of a row in Matrix
   std::vector<T> sample();
   std::vector<T> sample(std::size_t idx);
@@ -84,6 +109,8 @@ class CSVMatrix {
   void mapAll(UnaryFunc f);
 
   // Applies value to all rows in Matrix.
+
+
 
 
   // TODO; REMOVE!
@@ -97,22 +124,62 @@ static std::size_t GetFileSize(const char* path) {
   int rc = stat(path, &ret);
   return rc == 0 ? ret.st_size : 0;  
 }
- 
-static void LoadCSVLine(std::string& csv_line, 
-                        std::vector<std::string>& matrix_row) {
+
+
+// TODO: LOOK INTO THIS
+//
+// Not to happy with how I am currently function overloading. Also I don't
+// think a substr is needed for the double and integer overload.
+//
+// I could potentially combine them into one template function. 
+// So for instance, if the user provides a function to transform
+// the csv file data into an object of type T 
+//
+// Also, I am using the attributes to get the damn warnings to shutup.
+// but is there any other benefit ?
+
+[[maybe_unused]] static void LoadCSVLine(std::string& csv_line, 
+                        std::vector<std::string>& data) {
   std::size_t position = 0;
   std::size_t end_position = 0;
 
   while(end_position != std::string::npos) {
     end_position = csv_line.find(',', position);
-    matrix_row.push_back(csv_line.substr(position, end_position-position));
+    data.push_back(csv_line.substr(position, end_position-position));
     position = end_position + 1;
   }
 }
 
+[[maybe_unused]] static void LoadCSVLine(std::string& csv_line, 
+                        std::vector<int>& data) {
+  std::size_t position = 0;
+  std::size_t end_position = 0;
+
+  while(end_position != std::string::npos) {
+    end_position = csv_line.find(',', position);
+    data.push_back(std::stoi(csv_line.substr(position, end_position-position)));
+    position = end_position + 1;
+  }
+}
+
+
+[[maybe_unused]] static void LoadCSVLine(std::string& csv_line, 
+                        std::vector<double>& data) {
+  std::size_t position = 0;
+  std::size_t end_position = 0;
+
+  while(end_position != std::string::npos) {
+    end_position = csv_line.find(',', position);
+    data.push_back(std::stod(csv_line.substr(position, end_position-position)));
+    position = end_position + 1;
+  }
+}
+
+
+
 template<class T>
 CSVMatrix<T>::CSVMatrix(const char* file_path, bool forced_load) 
-                    : file_name_(file_path), file_stream_(file_path), 
+                    : file_stream_(file_path), file_name_(file_path), 
                     num_rows_(0), num_columns_(0), is_loaded_(false) {
   
   assert(file_stream_.is_open());
@@ -125,8 +192,7 @@ CSVMatrix<T>::CSVMatrix(const char* file_path, bool forced_load)
   if (!forced_load) 
     return;
 
-  InitMatrix();
-  // init rows, and columns
+  InitMatrix(); // inits rows and columns
   is_loaded_ = true;
 }
 
@@ -144,13 +210,17 @@ void CSVMatrix<T>::InitMatrix() {
   std::string buffer;
   buffer.resize(buffer_size);
 
+  int rows = 0;
   while (!file_stream_.eof()) {
-    std::vector<std::string> row;
-    buffer.replace(0, buffer_size, buffer_size, '\0');
     file_stream_.getline(&buffer[0], buffer_size);
-    LoadCSVLine(buffer, row);
-    data_matrix_.push_back(std::move(row));
+    LoadCSVLine(buffer, data_matrix_);
+    buffer.replace(0, buffer_size, buffer_size, '\0');
+    ++rows;
   }
+
+  num_rows_ = rows;
+  assert(data_matrix_.size() % num_rows_ == 0);
+  num_columns_ = data_matrix_.size() / num_rows_;
 }
 
 template<class T>
@@ -174,10 +244,10 @@ std::vector<T> CSVMatrix<T>::sample(std::size_t idx) {
 template<class T>
 void CSVMatrix<T>::dumpMatrix() {
   std::cout << "DIMS: " << num_rows_ << " " << num_columns_ << "\n";
-  for (auto& row : data_matrix_) {
-    for (auto& elem : row) {
-      std::cout << elem << " ";
+  for (std::size_t i=0; i<num_rows_; i++) {
+    for (std::size_t j=0; j<num_columns_; j++) {
+      std::cout << data_matrix_[i*num_columns_ + j] << " ";
     }
     std::cout << "\n";
-  } 
+  }
 }
