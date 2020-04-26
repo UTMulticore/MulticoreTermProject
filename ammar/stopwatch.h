@@ -5,9 +5,10 @@
 
 
 // Small Wrapper of C++ clock functionality. Intended to be used for basic profiling.
-//  
-// Need to test Stopwatch.
 //
+// Not working, need to look up docs for std::chrono
+//
+// Need to test Stopwatch.
 // Author: Ammar Sheikh
 
 

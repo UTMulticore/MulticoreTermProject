@@ -21,9 +21,7 @@ int main(int argc, const char** argv) {
   try {
     CSVMatrix<std::string> matrix("data/sample/small.csv", forced_load);
 
-    std::cout << "BEFORE: \n";
-    matrix.dumpMatrix();
-
+  
     // Two-Pass over data:
     // First pass, calculate the support of each item
     // Second pass, sort based on support
@@ -49,9 +47,6 @@ int main(int argc, const char** argv) {
                     [&](const std::string& a, const std::string& b){ 
                       return supportMap[a] > supportMap[b]; });
       }
-
-    std::cout << "\nAFTER: \n";
-    matrix.dumpMatrix();
   
     // Build the FP Tree
 

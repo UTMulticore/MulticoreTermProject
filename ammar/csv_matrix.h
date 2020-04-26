@@ -26,24 +26,18 @@
          - overflow?, underflow ?
         Exceptions ?
 
-        I don't need to store the num_rows, and num_columns
-        if I am storing like that. 
-        Because, then I can just query, std::vector sizes.
-
-
         Fix Style !!!!! <------- Function names are mixed case.
 
 
         Its not easy to construct objects of a type that you don't know.
         What if you don't know how to construct the object ???? I'm confusing myself here.
-
-
         For now lets just assume its std::string, std::int, or std::double
-
 
 
         How to handle huge datasets ? Maybe some sort of swapping ?
         with LRU ?
+
+        Need to document
 
 */
 
@@ -104,13 +98,14 @@ class CSVMatrix {
   template<class UnaryFunc>
   void mapAll(UnaryFunc f);
 
-  // Applies value to all rows in Matrix.
+  //TODO: Applies value to all rows in Matrix.
 
+  // Temp debugging...
   void dumpMatrix();
 };
 
 
-// Move this somewehere else on project end.
+// Move this somewehere else once project ends.
 static std::size_t GetFileSize(const char* path) {
   struct stat ret;
   int rc = stat(path, &ret);
@@ -129,6 +124,9 @@ static std::size_t GetFileSize(const char* path) {
 //
 // Also, I am using the attributes to get the damn warnings to shutup.
 // but is there any other benefit ?
+//
+// Also, need to fix bytes_read error, where values do not exist.
+//
 
 [[maybe_unused]] static void LoadCSVLine(std::string& csv_line, 
                         std::vector<std::string>& data, std::size_t bytes_read) {
@@ -202,7 +200,7 @@ template<class T>
 void CSVMatrix<T>::InitMatrix() {
   assert(num_rows_ == 0 && num_columns_ == 0);
 
-  std::size_t buffer_size = 500; // <---- This had to be tweaked. How do I choose this in the future when I don't know how long a line may be ?
+  std::size_t buffer_size = 500; // <----- This had to be tweaked. How do I choose this in the future when I don't know how long a line may be ?
   std::string buffer;
   buffer.resize(buffer_size);
 
@@ -219,6 +217,7 @@ void CSVMatrix<T>::InitMatrix() {
   num_columns_ = data_matrix_.size() / num_rows_;
 }
 
+// TODO; Remove both of these sample functions, or rewrite,they are part of old impl 
 template<class T>
 std::vector<T> CSVMatrix<T>::sample() {
   if (!is_loaded_) 

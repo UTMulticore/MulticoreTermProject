@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
+// These are useful for quick debugging.
+
 template<typename T>
 std::ostream& operator<<(std::ostream& lhs, const std::vector<T>& rhs) {
   for (const auto& elem : rhs)
