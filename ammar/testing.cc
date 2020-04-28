@@ -1,6 +1,7 @@
 #include "csv_matrix.h"
 // #define NO_DEBUG_H 
 #include "debug.h"
+#include "fp_growth.h"
 #include "stopwatch.h"
 
 #include <algorithm>
@@ -16,39 +17,45 @@ int main(int argc, const char** argv) {
   Stopwatch t;
   t.start();
 
+  const char* path = "data/sample/smallGrocery.csv";
   bool forced_load = true;
+  bool columns_present = true;
 
   try {
-    CSVMatrix<std::string> matrix("data/sample/small.csv", forced_load);
 
-  
+    CSVMatrix<std::string> data_set(path, columns_present, forced_load); 
+    data_set.removeColumn(0);
+    data_set.dumpMatrix();
+
     // Two-Pass over data:
     // First pass, calculate the support of each item
     // Second pass, sort based on support
     
-    std::unordered_map<decltype(matrix)::matrix_type, double> supportMap; // Use a concurrent map when doing parallel
+    std::unordered_map<std::string, int> support_map; // Use a concurrent map when doing parallel
 
-    auto cardinalty = matrix.getRows() - 1;
     // First row is column names...
-    for (std::size_t r=1; r<matrix.getRows(); ++r) {
-      for (std::size_t c=0; c<matrix.getCols(); ++c) {
-        if (c != 0 && isData(matrix[r][c])){
-          supportMap[matrix[r][c]] += 1.0 / cardinalty; // be aware of floating point errors when we do it like this
-        }
+    for (std::size_t r=0; r<data_set.getRows(); ++r) {
+      for (std::size_t c=0; c<data_set.getCols(); ++c) {
+        if (isData(data_set[r][c]))
+          support_map[data_set[r][c]] += 1;
       }
     }
 
-    std::cout << supportMap;
+    std::cout << "\n";
+    std::cout << support_map << "\n";
 
 
     // Sort rows
-    for (std::size_t r=1; r<matrix.getRows(); ++r) {
-      std::sort(matrix[r] + 1, matrix[r] + matrix.getCols(), 
+    for (std::size_t r=0; r<data_set.getRows(); ++r) {
+      std::sort(data_set[r], data_set[r] + data_set.getCols(), 
                     [&](const std::string& a, const std::string& b){ 
-                      return supportMap[a] > supportMap[b]; });
+                      return support_map[a] > support_map[b]; });
       }
-  
+
+    data_set.dumpMatrix();
+
     // Build the FP Tree
+    FPGrowth fp(data_set);
 
 
     // Query FP Tree -> Find a way to display the results

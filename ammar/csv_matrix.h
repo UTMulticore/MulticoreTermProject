@@ -91,7 +91,7 @@ class CSVMatrix {
   }
 
   std::vector<T> sample();
-  std::vector<T> sample(std::size_t idx);
+  std::vector<T> sample(std::size_t idx) const;
 
 
   void removeColumn(std::size_t col_idx);
@@ -237,15 +237,17 @@ std::vector<T> CSVMatrix<T>::sample() {
 }
 
 template<class T>
-std::vector<T> CSVMatrix<T>::sample(std::size_t idx) {
+std::vector<T> CSVMatrix<T>::sample(std::size_t idx) const {
   assert(num_rows_ > 0);
   assert(idx < num_rows_);
-  if (!is_loaded_) { 
-    InitMatrix(false);
-    is_loaded_ = true;
-  }
+  // if (!is_loaded_) { 
+  //   InitMatrix(false);
+  //   is_loaded_ = true;
+  // }
   assert(num_rows_ > 0);
-  return data_matrix_[idx];
+  auto begin = data_matrix_.begin() + (idx * num_columns_);
+  auto end = begin + num_columns_;
+  return std::vector<T>(begin, end);
 }
 
 template<class T>
@@ -254,7 +256,7 @@ void CSVMatrix<T>::dumpMatrix() {
   std::cout << "COLUMN NAMES: " << col_names_ << "\n";
   for (std::size_t i=0; i<num_rows_; i++) {
     for (std::size_t j=0; j<num_columns_; j++) {
-      std::cout << data_matrix_[i*num_columns_ + j] << ", ";
+      std::cout << data_matrix_[i*num_columns_ + j] << "|";
     }
     std::cout << "\n";
   }
