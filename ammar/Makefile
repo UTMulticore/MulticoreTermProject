@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS =  -g -Wall -std=c++17
 
-all: csv_matrix.h stopwatch.h debuh.h
+all: csv_matrix.h stopwatch.h debug.h
 	$(CC) $(CFLAGS) -o test.out testing.cc
 
 # all: testing

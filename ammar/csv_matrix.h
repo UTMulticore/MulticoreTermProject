@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "debug.h"
 
 /*
   TODO: Extra Line In CSV Failing!
@@ -53,12 +54,11 @@ class CSVMatrix {
 
  private:  
 
-
   std::ifstream file_stream_;     // system agnostic.  
   std::vector<T> data_matrix_;    // convenience, but don't need size/cap 
 
   std::string file_name_;
-  std::size_t file_byte_size_;
+  std::size_t file_byte_size_;    // This is not really being used, Consider removing
 
   std::vector<std::string> col_names_;
   std::size_t num_rows_;   
@@ -67,7 +67,7 @@ class CSVMatrix {
   bool is_loaded_;
 
   
-  void InitMatrix();
+  void InitMatrix(bool col_names_present);
   
  public:
 
@@ -75,12 +75,11 @@ class CSVMatrix {
 
 
   // By default, lazy initialization of Matrix.
-  CSVMatrix(const char* file_path, bool forced_load=false);
+  CSVMatrix(const char* file_path, bool col_names ,bool forced_load=false);
   ~CSVMatrix();
 
   CSVMatrix& operator=(const CSVMatrix&) = delete;
 
-  // ACCESSORS
   std::size_t getRows() const noexcept { return num_rows_; }
   std::size_t getCols() const noexcept { return num_columns_; }
 
@@ -93,6 +92,9 @@ class CSVMatrix {
 
   std::vector<T> sample();
   std::vector<T> sample(std::size_t idx);
+
+
+  void removeColumn(std::size_t col_idx);
 
   // Applies value to all elements in Matrix
   template<class UnaryFunc>
@@ -130,10 +132,8 @@ static std::size_t GetFileSize(const char* path) {
 
 [[maybe_unused]] static void LoadCSVLine(std::string& csv_line, 
                         std::vector<std::string>& data, std::size_t bytes_read) {
-  //std::cout << "bytes_read" << bytes_read << "\n";
   std::size_t position = 0;
   std::size_t end_position = 0;
-
   while(end_position != std::string::npos) {
     end_position = csv_line.find(',', position);
     if (end_position == std::string::npos) // <------------------------------ This a bad temporary solution. Fix this for all 3.
@@ -172,21 +172,19 @@ static std::size_t GetFileSize(const char* path) {
 
 
 template<class T>
-CSVMatrix<T>::CSVMatrix(const char* file_path, bool forced_load) 
-                    : file_stream_(file_path), file_name_(file_path), 
-                    num_rows_(0), num_columns_(0), is_loaded_(false) {
+CSVMatrix<T>::CSVMatrix(const char* file_path, bool col_names, 
+                      bool forced_load) : file_stream_(file_path), 
+                      file_name_(file_path), num_rows_(0), 
+                      num_columns_(0), is_loaded_(false) {
   
   assert(file_stream_.is_open());
   if (!file_stream_.is_open())
-    throw std::filesystem::filesystem_error("file failed to open", 
+    throw std::filesystem::filesystem_error("file failed to open",  // Hmmm, should I, or leabe exceptions out?
                                             std::error_code()); 
-
   file_byte_size_ = GetFileSize(file_path);
-
   if (!forced_load) 
     return;
-
-  InitMatrix(); // inits rows and columns
+  InitMatrix(col_names);
   is_loaded_ = true;
 }
 
@@ -197,22 +195,32 @@ CSVMatrix<T>::~CSVMatrix() {
 
 // Loads the entire CSV file into the data_matrix_.
 template<class T>
-void CSVMatrix<T>::InitMatrix() {
+void CSVMatrix<T>::InitMatrix(bool col_names) {
   assert(num_rows_ == 0 && num_columns_ == 0);
-
   std::size_t buffer_size = 500; // <----- This had to be tweaked. How do I choose this in the future when I don't know how long a line may be ?
   std::string buffer;
   buffer.resize(buffer_size);
 
+  if (col_names) {
+    file_stream_.getline(&buffer[0], buffer_size);
+    LoadCSVLine(buffer, col_names_, file_stream_.gcount());
+    buffer.replace(0, buffer_size, buffer_size, '\0');
+  }
+
+
   int rows = 0;
   while (!file_stream_.eof()) {
     file_stream_.getline(&buffer[0], buffer_size);
-    LoadCSVLine(buffer, data_matrix_, file_stream_.gcount());
+    std::size_t bytes_read = file_stream_.gcount();
+    if (bytes_read  <= 1)
+      break;
+    LoadCSVLine(buffer, data_matrix_, bytes_read);
     buffer.replace(0, buffer_size, buffer_size, '\0');
     ++rows;
   }
-
   num_rows_ = rows;
+  //std::cout << data_matrix_.size();
+  std::cout << rows << "\n"; 
   assert(data_matrix_.size() % num_rows_ == 0);
   num_columns_ = data_matrix_.size() / num_rows_;
 }
@@ -220,9 +228,10 @@ void CSVMatrix<T>::InitMatrix() {
 // TODO; Remove both of these sample functions, or rewrite,they are part of old impl 
 template<class T>
 std::vector<T> CSVMatrix<T>::sample() {
-  if (!is_loaded_) 
-    InitMatrix();
-
+  if (!is_loaded_) {
+    InitMatrix(false);
+    is_loaded_ = true;
+  }
   assert(num_rows_ > 0);
   return data_matrix_[rand() % num_rows_];
 }
@@ -231,18 +240,42 @@ template<class T>
 std::vector<T> CSVMatrix<T>::sample(std::size_t idx) {
   assert(num_rows_ > 0);
   assert(idx < num_rows_);
-  if (!is_loaded_) 
-    InitMatrix();
+  if (!is_loaded_) { 
+    InitMatrix(false);
+    is_loaded_ = true;
+  }
+  assert(num_rows_ > 0);
   return data_matrix_[idx];
 }
 
 template<class T>
 void CSVMatrix<T>::dumpMatrix() {
   std::cout << "DIMS: " << num_rows_ << " " << num_columns_ << "\n";
+  std::cout << "COLUMN NAMES: " << col_names_ << "\n";
   for (std::size_t i=0; i<num_rows_; i++) {
     for (std::size_t j=0; j<num_columns_; j++) {
       std::cout << data_matrix_[i*num_columns_ + j] << ", ";
     }
     std::cout << "\n";
   }
+}
+
+
+template<class T>
+void CSVMatrix<T>::removeColumn(std::size_t col_idx) {
+  assert(is_loaded_);
+  assert(col_idx >= 0 && col_idx < num_columns_);
+  
+  auto col_key = col_idx % num_columns_;
+  std::vector<T> dest_matrix;
+  // Preallocate. dest_matrix.
+  for (int i=0; i<data_matrix_.size(); i++) {
+    if (i % num_columns_ != col_key) {
+      dest_matrix.push_back(data_matrix_[i]);
+    }
+  }
+
+  data_matrix_ = std::move(dest_matrix);
+  num_columns_--;
+  assert(data_matrix_.size() == num_columns_ * num_rows_);
 }
