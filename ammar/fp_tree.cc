@@ -12,14 +12,6 @@ FP_Tree::fp_node* FP_Tree::fp_node::containsItemAsChild(const std::string &item)
   return nullptr;
 }
 
-
-
-
-static std::size_t getTokenEndPosition(const std::string& str, std::size_t position) {
-  std::size_t endPos = str.find('/', position);
-  return endPos;
-}
-
 //  Flow: Get next item in path
 //        if no matching item at node, create new node & move to that node
 //        if matching item at node, add to count & and move to that node
@@ -27,7 +19,7 @@ static std::size_t getTokenEndPosition(const std::string& str, std::size_t posit
 //  Add in single-linked list
 void FP_Tree::add(std::vector<std::string> item_path) {
   if (null_head_ == nullptr)
-    null_head_ = new fp_node("NULL HEAD");
+    null_head_ = new fp_node("NULL");
   fp_node* iter = null_head_;
 
   for (int i=0; i<item_path.size() && item_path[i].length() > 2; i++) {
@@ -38,10 +30,16 @@ void FP_Tree::add(std::vector<std::string> item_path) {
     }
     else {
       fp_node* newChild = new fp_node(item_path[i]);
+      newChild->parent = iter;
       iter->children_.push_back(newChild);
       iter = newChild;
+      addItemLink(newChild); // add item link
     }
   }  
+}
+
+void FP_Tree::addItemLink(fp_node* n) {
+   item_lists_[n->item_].push_back(n);
 }
 
 void FP_Tree::printNode(fp_node* n) {
@@ -67,5 +65,21 @@ void FP_Tree::printTree() {
       level_count = q.size();
     }
 
+  }
+}
+
+void FP_Tree::getParentsOfNode(fp_node* p) {
+
+}
+
+
+void FP_Tree::mine() {
+  for (const auto& pair : item_lists_) {
+    // get all prefix of item.
+    // item = pair.first
+    // nodes = pair.second
+    for (const auto nodes : pair.second) {
+      //std::vector<fp_node> prefix = 
+    }
   }
 }

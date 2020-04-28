@@ -30,6 +30,8 @@ int main(int argc, const char** argv) {
     // Two-Pass over data:
     // First pass, calculate the support of each item
     // Second pass, sort based on support
+
+    int min_support = 3;
     
     std::unordered_map<std::string, int> support_map; // Use a concurrent map when doing parallel
 
@@ -45,7 +47,7 @@ int main(int argc, const char** argv) {
     std::cout << support_map << "\n";
 
 
-    // Sort rows
+    // Sort the item set of each transaction based on support. 
     for (std::size_t r=0; r<data_set.getRows(); ++r) {
       std::sort(data_set[r], data_set[r] + data_set.getCols(), 
                     [&](const std::string& a, const std::string& b){ 
@@ -55,10 +57,11 @@ int main(int argc, const char** argv) {
     data_set.dumpMatrix();
 
     // Build the FP Tree
-    FPGrowth fp(data_set);
+    FPGrowth fp(data_set, 3);
 
 
     // Query FP Tree -> Find a way to display the results
+    fp.mine();
 
   } 
   
