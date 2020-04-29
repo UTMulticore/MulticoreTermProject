@@ -84,7 +84,7 @@ class CSVMatrix {
   std::size_t getCols() const noexcept { return num_columns_; }
 
   // Return a pointer to start of row.
-  T* operator[](std::size_t row){
+  const T* operator[](std::size_t row) const {
     assert(is_loaded_);
     assert(row >=0 && row < num_rows_);
     return &data_matrix_[row*num_columns_]; 

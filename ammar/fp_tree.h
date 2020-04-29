@@ -7,17 +7,14 @@
 
 #pragma once
 
-#include <cctype>
 #include <list>
 #include <string>
-#include <unordered_map>
 #include <vector>
+#include <map>
 
 
 
-class FP_Tree {
 
- public: 
   struct fp_node {
     std::string item_;
     std::size_t count_;
@@ -33,25 +30,33 @@ class FP_Tree {
 
     fp_node* containsItemAsChild(const std::string& item);
     void addChild(std::string item);
+    friend class FPGrowth;
   };
 
-  
 
+class FP_Tree {
+
+
+ public: 
+  friend class FPGrowth;
   fp_node* null_head_;
-  std::unordered_map<std::string, std::list<fp_node*>> item_lists_;
+  std::map<std::string, std::list<fp_node*>> header_table_;
 
-  
+  void sortMapByValue();
+  void printNode(fp_node* n);
 
 
   void add(std::vector<std::string> item_path);
   void printTree();
-  void printNode(fp_node* n);
   void addItemLink(fp_node* n);
 
+  void buildTree();
   void mine();
+
+  bool isEmpty();
+  bool hasOnePath();
   
   void getParentsOfNode(fp_node* p);
-
 
 
 };

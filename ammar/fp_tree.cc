@@ -1,8 +1,11 @@
 #include "fp_tree.h"
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <queue>
+
+
 
 FP_Tree::fp_node* FP_Tree::fp_node::containsItemAsChild(const std::string &item) {
   for (auto& child : children_) {
@@ -10,6 +13,36 @@ FP_Tree::fp_node* FP_Tree::fp_node::containsItemAsChild(const std::string &item)
       return child;
   }
   return nullptr;
+}
+
+bool FP_Tree::isEmpty() {
+  return (null_head_ == nullptr || null_head_->children_.size() == 0);
+}
+
+bool FP_Tree::hasOnePath() {
+  if (isEmpty())
+    return true;
+  // if every node has one child
+  bool oneChild = true;
+  fp_node* iter = null_head_;
+  while (iter->children_.size() != 0) {
+    if (iter->children_.size() > 1) {
+      oneChild = false;
+      break;
+    }
+    iter = iter->children_.front();
+  }
+  return oneChild;
+}
+
+
+void FP_Tree::sortMapByValue() {
+    std::vector<std::pair<std::string, std::list<fp_node*>>> mapVector;
+    // Insert entries
+    for (auto iterator = header_table_.begin(); iterator != header_table_.end(); ++iterator) {
+    mapVector.push_back(*iterator);
+    }
+    //std::sort(mapVector.begin(), mapVector.end(), []());
 }
 
 //  Flow: Get next item in path
@@ -34,12 +67,15 @@ void FP_Tree::add(std::vector<std::string> item_path) {
       iter->children_.push_back(newChild);
       iter = newChild;
       addItemLink(newChild); // add item link
+
+      // SORTT ORDER SOMEHOW
     }
-  }  
+  }
+
 }
 
 void FP_Tree::addItemLink(fp_node* n) {
-   item_lists_[n->item_].push_back(n);
+   header_table_[n->item_].push_back(n);
 }
 
 void FP_Tree::printNode(fp_node* n) {
@@ -47,6 +83,7 @@ void FP_Tree::printNode(fp_node* n) {
 }
 
 void FP_Tree::printTree() {
+  std::cout << "Tree:\n";
   std::queue<fp_node*> q;
   q.push(null_head_);
   int level_count = 1;
@@ -64,22 +101,51 @@ void FP_Tree::printTree() {
       std::cout << "\n";
       level_count = q.size();
     }
-
+  }
+  std::cout << "header_table\n";
+  for (const auto& p : header_table_) {
+    std::cout << p.first << ":size:" << p.second.size() << "\n";
   }
 }
 
-void FP_Tree::getParentsOfNode(fp_node* p) {
+std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_supp) {
 
-}
+  if (tree.isEmpty()){
+    std::cout << "EMPTY\n";
+    return {};
+  }
 
+  // Generate all combinations
+  // and make sure support is greater than min support
+  if (tree.hasOnePath()) {
+    std::cout << "HAS ONE PATH\n";
 
-void FP_Tree::mine() {
-  for (const auto& pair : item_lists_) {
-    // get all prefix of item.
-    // item = pair.first
-    // nodes = pair.second
-    for (const auto nodes : pair.second) {
-      //std::vector<fp_node> prefix = 
+    // For each combination of nodes in the path P
+    // generate pattern with support that is min support
+    // and 
+    fp_node* iter = tree.null_head_;
+
+    while (iter) {
+
     }
+
+
+
+    
+  }
+  else {
+    std::cout << "NEITHER\n";
+
+
   }
 }
+
+
+/*
+  Here it is, the fucking creme de la creme !!!!
+*/
+void FP_Tree::mine() {
+  mineTree(*this);
+}
+
+
