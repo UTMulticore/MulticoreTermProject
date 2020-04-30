@@ -10,17 +10,17 @@ private:
     int n;  // number of data points
     int d;  // dimension of data points (vectors)
     int k;  // number of clusters
-    std::vector<std::vector<float> > x;  // input data points
-    std::vector<int> whichSet;  // stores info that which set a vector belong to
-    std::vector<std::vector<float> > u; // centers of each of k sets
+    std::vector<std::vector<float> > dataPoints;  // input data points
+    std::vector<int> labels;  // stores info that which set a vector belong to
+    std::vector<std::vector<float> > centeroids; // centers of each of k sets
     bool converged;
     float previousError;
 
     // return L2 distance between two points
     float getDistance(std::vector<float> x1, std::vector<float> x2);
 
-    // return current Root Mean Squared Error value
-    float getRMSE(void);
+    // return current Mean Squared Error value
+    float getMSE(void);
 
     // add two vectors
     std::vector<float> addVector(std::vector<float> x1, std::vector<float> x2);
