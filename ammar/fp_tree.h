@@ -41,6 +41,9 @@ class FP_Tree {
   fp_node* null_head_;
   std::map<std::string, std::list<fp_node*>> header_table_;
 
+  FP_Tree() : null_head_(nullptr) {}
+
+
   void sortMapByValue();
   void printNode(fp_node* n);
 
