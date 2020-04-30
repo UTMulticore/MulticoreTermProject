@@ -14,7 +14,7 @@
 
 fp_node* fp_node::containsItemAsChild(const std::string& item) {
   for (auto& child : children_) {
-    if (child->item_ == item)
+    if (child && child->item_ == item)
       return child;
   }
   return nullptr;
