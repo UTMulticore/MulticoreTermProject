@@ -37,8 +37,8 @@ void FPGrowth::buildTree(const CSVMatrix<std::string>& data_set) {
     tree_.add(item_set);
   }
   //TODO: sortMapByValue(tree_.item_lists_);
-  tree_.printTree();
-  std::cout << "\n";
+  //tree_.printTree();
+  //std::cout << "\n";
 }
 
 
@@ -58,8 +58,8 @@ FPGrowth::FPGrowth(const CSVMatrix<std::string>& data_set, std::uint32_t min_sup
     buildTree(data_set);
 }
 
-void FPGrowth::mine() {
-  tree_.mine();
+std::vector<std::vector<std::string>> FPGrowth::mine() {
+  return tree_.mine(min_support_);
 }
 
 

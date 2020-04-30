@@ -13,18 +13,16 @@
 #include <map>
 
 
-
-
   struct fp_node {
     std::string item_;
     std::size_t count_;
     std::vector<fp_node*> children_;
-    fp_node* parent;
+    fp_node* parent_;
     fp_node* next_similar_item_;
 
     fp_node(const std::string item) : item_(item), count_(1), 
                                   next_similar_item_(nullptr), 
-                                  parent(nullptr){};
+                                  parent_(nullptr){};
     fp_node() = default;
     fp_node& operator=(const fp_node&) = delete;
 
@@ -33,11 +31,12 @@
     friend class FPGrowth;
   };
 
-
 class FP_Tree {
 
 
  public: 
+
+
   friend class FPGrowth;
   fp_node* null_head_;
   std::map<std::string, std::list<fp_node*>> header_table_;
@@ -51,8 +50,7 @@ class FP_Tree {
   void addItemLink(fp_node* n);
 
   void buildTree();
-  void mine();
-
+  std::vector<std::vector<std::string>> mine(std::uint32_t min_supp);
   bool isEmpty();
   bool hasOnePath();
   

@@ -4,10 +4,13 @@
 #include <iostream>
 #include <string>
 #include <queue>
+#include <unordered_map>
+
+#include "debug.h"
 
 
 
-FP_Tree::fp_node* FP_Tree::fp_node::containsItemAsChild(const std::string &item) {
+fp_node* fp_node::containsItemAsChild(const std::string &item) {
   for (auto& child : children_) {
     if (child->item_ == item)
       return child;
@@ -63,7 +66,7 @@ void FP_Tree::add(std::vector<std::string> item_path) {
     }
     else {
       fp_node* newChild = new fp_node(item_path[i]);
-      newChild->parent = iter;
+      newChild->parent_ = iter;
       iter->children_.push_back(newChild);
       iter = newChild;
       addItemLink(newChild); // add item link
@@ -108,6 +111,18 @@ void FP_Tree::printTree() {
   }
 }
 
+std::vector<std::string> getPath(fp_node* iter, int min_supp) {
+  std::vector<std::string> ret;
+  while (iter->children_.size() != 0) {
+    if (iter->count_ >= min_supp)
+      ret.push_back(iter->item_);
+    iter = iter->children_.front();
+  }
+  if (iter->count_ >= min_supp)
+    ret.push_back(iter->item_);
+  return ret;
+}
+
 std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_supp) {
 
   if (tree.isEmpty()){
@@ -119,33 +134,54 @@ std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_
   // and make sure support is greater than min support
   if (tree.hasOnePath()) {
     std::cout << "HAS ONE PATH\n";
-
-    // For each combination of nodes in the path P
+   // For each combination of nodes in the path P
     // generate pattern with support that is min support
     // and 
     fp_node* iter = tree.null_head_;
-
-    while (iter) {
-
-    }
-
-
-
-    
+    auto ret = getPath(iter->children_.front(), min_supp);
+    return {ret};
   }
   else {
-    std::cout << "NEITHER\n";
+    std::cout << "MORE THAN ONE PATH\n";
 
+    std::vector<std::vector<std::string>> ret;
 
+    for (const auto& p : tree.header_table_) {
+      std::unordered_map<std::string, int> cond_map;
+      std::vector<std::string> conditional;
+      conditional.push_back(">" + p.second.front()->item_ + "<");
+      for (const auto node : p.second) {
+        int count = node->count_;
+        fp_node* iter = node;
+        iter = iter->parent_;
+        // add all parents to map with that count
+        while (iter->item_ != "NULL") {
+          cond_map[iter->item_] += count;
+          iter = iter->parent_;
+        }
+      }
+
+      // std::cout << "item" << conditional;
+      // std::cout << "cond_map: " << cond_map << "\n";
+      // So now we have all the conditional map of the pattern
+      // lets check for support then just dump everything in the
+      // return vec
+      for (const auto& p : cond_map) {
+        if (p.second >= min_supp){
+          conditional.push_back(p.first);
+        }
+      }
+      if (conditional.size() > 1)
+        ret.push_back(conditional);
+    }
+
+    return ret;
   }
 }
 
 
-/*
-  Here it is, the fucking creme de la creme !!!!
-*/
-void FP_Tree::mine() {
-  mineTree(*this);
+std::vector<std::vector<std::string>> FP_Tree::mine(std::uint32_t min_supp) {
+  return mineTree(*this, min_supp);
 }
 
 

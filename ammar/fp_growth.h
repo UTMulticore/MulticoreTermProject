@@ -23,6 +23,6 @@ class FPGrowth {
   FPGrowth(const CSVMatrix<std::string>& data_set, std::uint32_t min_support);
 
   void run();
-  void mine();
+  std::vector<std::vector<std::string>> mine();
 
 };
