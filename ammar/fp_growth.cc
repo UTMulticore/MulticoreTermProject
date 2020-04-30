@@ -30,13 +30,20 @@ std::vector<std::string> FPGrowth::filterLowSupport(std::vector<std::string> v) 
 // when we build the tree, we need to filter out items of a low support and sort
 // based on support
 void FPGrowth::buildTree(const CSVMatrix<std::string>& data_set) {
+  omp_lock_t lock;
+  omp_init_lock(&lock);
+  #pragma omp parallel for num_threads(num_threads_)
   for (std::size_t i=0; i<data_set.getRows(); i++) {
     auto item_set = filterLowSupport(data_set.sample(i));
     std::sort(item_set.begin(), item_set.end(), [&](const std::string& a,const std::string& b){
       return support_map[a] > support_map[b];
     });
     // lock
+    omp_set_lock(&lock);
+    std::cout << "In Lock\n";
     tree_.add(item_set);
+    std::cout << "Released Lock Added Node!\n";
+    omp_unset_lock(&lock);
     // unlock
   }
   //TODO: sortMapByValue(tree_.item_lists_);
