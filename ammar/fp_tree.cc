@@ -6,6 +6,8 @@
 #include <queue>
 #include <unordered_map>
 
+#include <omp.h>
+
 #include "debug.h"
 
 
@@ -123,7 +125,7 @@ std::vector<std::string> getPath(fp_node* iter, int min_supp) {
   return ret;
 }
 
-std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_supp) {
+std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_supp, int num_threads_) {
 
   if (tree.isEmpty()){
     return {};
@@ -143,20 +145,32 @@ std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_
 
     std::vector<std::vector<std::string>> ret;
 
+
     for (const auto& p : tree.header_table_) {
       std::unordered_map<std::string, int> cond_map;
       std::vector<std::string> conditional;
       conditional.push_back(">" + p.second.front()->item_ + "<");
+
+    omp_lock_t lock;
+    omp_init_lock(&lock);
+
+  #pragma omp parallel num_threads(num_threads_) 
+    {
+
       for (const auto node : p.second) {
         int count = node->count_;
         fp_node* iter = node;
         iter = iter->parent_;
         // add all parents to map with that count
         while (iter->item_ != "NULL") {
+          omp_set_lock(&lock);
           cond_map[iter->item_] += count;
+          omp_unset_lock(&lock);
           iter = iter->parent_;
         }
       }
+    }
+
 
       // std::cout << "item" << conditional;
       // std::cout << "cond_map: " << cond_map << "\n";
@@ -177,8 +191,8 @@ std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_
 }
 
 
-std::vector<std::vector<std::string>> FP_Tree::mine(std::uint32_t min_supp) {
-  return mineTree(*this, min_supp);
+std::vector<std::vector<std::string>> FP_Tree::mine(std::uint32_t min_supp, int num_threads_) {
+  return mineTree(*this, min_supp, num_threads_);
 }
 
 

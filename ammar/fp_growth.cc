@@ -74,7 +74,7 @@ FPGrowth::FPGrowth(const CSVMatrix<std::string>& data_set, std::uint32_t min_sup
 }
 
 std::vector<std::vector<std::string>> FPGrowth::mine() {
-  return tree_.mine(min_support_);
+  return tree_.mine(min_support_, num_threads_);
 }
 
 

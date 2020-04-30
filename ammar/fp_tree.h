@@ -50,7 +50,7 @@ class FP_Tree {
   void addItemLink(fp_node* n);
 
   void buildTree();
-  std::vector<std::vector<std::string>> mine(std::uint32_t min_supp);
+  std::vector<std::vector<std::string>> mine(std::uint32_t min_supp, int num_threads);
   bool isEmpty();
   bool hasOnePath();
   
