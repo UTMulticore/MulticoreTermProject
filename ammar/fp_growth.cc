@@ -7,7 +7,6 @@
 #include <omp.h>
 
 static bool isData(const std::string& str) {
-  //std::cout << "Got the read\n";
   if (str.size() == 0)
     return false;
   for (auto c : str) {
@@ -44,19 +43,15 @@ void FPGrowth::buildTree(const CSVMatrix<std::string>& data_set) {
     omp_unset_lock(&lock);
     // unlock
   }
-  //TODO: sortMapByValue(tree_.item_lists_);
 }
 
 
 void FPGrowth::initSupportMap(const CSVMatrix<std::string>& data_set) {
-  std::cout << "here\n";
   omp_lock_t lock;
   omp_init_lock(&lock);
- // std::cout << "REAL Lock shit done!\n";
   #pragma omp parallel for num_threads(num_threads_) collapse(2)
     for (std::size_t r=0; r<data_set.getRows(); ++r) {
       for (std::size_t c=0; c<data_set.getCols(); ++c) {
-       // std::cout << "HERE I AM!\n";
         if (isData(data_set[r][c])) {
           omp_set_lock(&lock);
           support_map[data_set[r][c]] += 1;
@@ -64,8 +59,6 @@ void FPGrowth::initSupportMap(const CSVMatrix<std::string>& data_set) {
         }
       }
     }
-
-  std::cout << "supp map built!\n";
 }
 
 FPGrowth::FPGrowth(const CSVMatrix<std::string>& data_set, std::uint32_t min_supp, int num_threads=1) 
@@ -73,11 +66,8 @@ FPGrowth::FPGrowth(const CSVMatrix<std::string>& data_set, std::uint32_t min_sup
   
     initSupportMap(data_set);
     //std::cout << support_map;
-    std::cout << "building tree\n";
     buildTree(data_set);
-    std::cout << "tree built\n";
     //tree_.printTree();
-    //std::cout << "\n";
 }
 
 std::vector<std::vector<std::string>> FPGrowth::mine() {

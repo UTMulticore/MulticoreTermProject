@@ -35,13 +35,13 @@ int main(int argc, const char** argv) {
 
   auto done = stopwatch.now();
 
-  std::cout << "RESULT:\n";
-  for (const auto& v : res) {
-    for (const auto& item : v) {
-      std::cout << item << " ";
-    }
-    std::cout << "\n";
-  }
+  // std::cout << "RESULT:\n";
+  // for (const auto& v : res) {
+  //   for (const auto& item : v) {
+  //     std::cout << item << " ";
+  //   }
+  //   std::cout << "\n";
+  // }
   
 
   std::cout << done << " milliseconds \n";
