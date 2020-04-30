@@ -151,11 +151,11 @@ std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_
       std::vector<std::string> conditional;
       conditional.push_back(">" + p.second.front()->item_ + "<");
 
-    omp_lock_t lock;
-    omp_init_lock(&lock);
+  //  omp_lock_t lock;
+ //   omp_init_lock(&lock);
 
-  #pragma omp parallel num_threads(num_threads_) 
-    {
+ // #pragma omp parallel num_threads(num_threads_) 
+  //  {
 
       for (const auto node : p.second) {
         int count = node->count_;
@@ -163,13 +163,13 @@ std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_
         iter = iter->parent_;
         // add all parents to map with that count
         while (iter->item_ != "NULL") {
-          omp_set_lock(&lock);
+          //omp_set_lock(&lock);
           cond_map[iter->item_] += count;
-          omp_unset_lock(&lock);
+          //omp_unset_lock(&lock);
           iter = iter->parent_;
         }
       }
-    }
+  //  }
 
 
       // std::cout << "item" << conditional;
