@@ -60,7 +60,8 @@ void FP_Tree::add(std::vector<std::string> item_path) {
     null_head_ = new fp_node("NULL");
   fp_node* iter = null_head_;
   std::cout << "NULL Head added\n";
-
+  if (item_path.size() == 0)
+    return;
   for (int i=0; i<item_path.size() && item_path[i].length() > 2; i++) {
     auto child = iter->containsItemAsChild(item_path[i]);
     if (child) {
