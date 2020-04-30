@@ -52,11 +52,11 @@ void FPGrowth::initSupportMap(const CSVMatrix<std::string>& data_set) {
   std::cout << "here\n";
   omp_lock_t lock;
   omp_init_lock(&lock);
-  std::cout << "REAL Lock shit done!\n";
+ // std::cout << "REAL Lock shit done!\n";
   #pragma omp parallel for num_threads(num_threads_) collapse(2)
     for (std::size_t r=0; r<data_set.getRows(); ++r) {
       for (std::size_t c=0; c<data_set.getCols(); ++c) {
-        std::cout << "HERE I AM!\n";
+       // std::cout << "HERE I AM!\n";
         if (isData(data_set[r][c])) {
           omp_set_lock(&lock);
           support_map[data_set[r][c]] += 1;
