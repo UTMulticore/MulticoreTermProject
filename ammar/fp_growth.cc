@@ -7,7 +7,7 @@
 #include <omp.h>
 
 static bool isData(const std::string& str) {
-  std::cout << "Got the read\n";
+  //std::cout << "Got the read\n";
   if (str.size() == 0)
     return false;
   for (auto c : str) {
