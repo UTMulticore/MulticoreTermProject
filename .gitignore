@@ -1,5 +1,7 @@
 # Ignore all files in data directory
-**/ammar/data
+**/ammar/data/medium
+**/ammar/data/large
+**/ammar/data/sample
 
 # Executables
 **/ammar/*.exe

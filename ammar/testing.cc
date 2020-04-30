@@ -33,6 +33,8 @@ int main(int argc, const char** argv) {
   // Mine FP Tree -> Find a way to display the results
   auto res = fp.mine();
 
+  auto done = stopwatch.now();
+
   std::cout << "RESULT:\n";
   for (const auto& v : res) {
     for (const auto& item : v) {
@@ -42,5 +44,5 @@ int main(int argc, const char** argv) {
   }
   
 
-  std::cout << stopwatch.now() << "milliseconds \n";
+  std::cout << done << " milliseconds \n";
 }
