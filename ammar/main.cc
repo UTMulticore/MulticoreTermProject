@@ -5,17 +5,18 @@
 #include "stopwatch.h"
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
-#include <map>
 
+void writeToFile(std::vector<std::vector<std::string>>& results);
 
 int main(int argc, const char** argv) {
   // params
   const char* path = "data/small/groceryData.csv";
   bool forced_load = true;
   bool columns_present = true;
-  int min_support = 20;
+  int min_support = 30;
 
   int num_threads = std::stoi(argv[1]);
 
@@ -43,6 +44,18 @@ int main(int argc, const char** argv) {
   //   std::cout << "\n";
   // }
   
-
+  writeToFile(res);
   std::cout << done << " milliseconds \n";
+}
+
+
+void writeToFile(std::vector<std::vector<std::string>>& results) {
+  std::ofstream file("output.txt");
+  assert(file.is_open());
+  for (const auto& v : results) {
+    for (const auto& item : v) {
+      file << item << ' ';
+    }
+    file << '\n';
+  }
 }
