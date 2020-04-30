@@ -40,9 +40,7 @@ void FPGrowth::buildTree(const CSVMatrix<std::string>& data_set) {
     });
     // lock
     omp_set_lock(&lock);
-    std::cout << "In Lock\n";
     tree_.add(item_set);
-    std::cout << "Released Lock Added Node!\n";
     omp_unset_lock(&lock);
     // unlock
   }

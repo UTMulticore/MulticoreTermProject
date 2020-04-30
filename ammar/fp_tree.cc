@@ -14,13 +14,10 @@
 
 fp_node* fp_node::containsItemAsChild(const std::string& item) {
   for (const auto& child : children_) {
-    std::cout << "CHECKING: " << child << "\n";
     if (child && child->item_ == item) {
-      std::cout << "RETURN\n";
       return child;
     }
   }
-  std::cout << "RETURN NULL\n";
   return nullptr;
 }
 
@@ -63,27 +60,15 @@ void FP_Tree::add(std::vector<std::string> item_path) {
   if (null_head_ == nullptr)
     null_head_ = new fp_node("NULL");
   fp_node* iter = null_head_;
-  std::cout << "NULL Head added\n";
-  if (item_path.size() == 0)
-    return;
-  std::cout << "Size > 0\n";
+
   for (int i=0; i<item_path.size() && item_path[i].length() > 2; i++) {
-    std::cout << "checking for children with same item name\n";
-    std::cout << "item[i]" << item_path[i] << " tada!\n";
-    std::cout << item_path << "\n";
     auto child = iter->containsItemAsChild(item_path[i]);
-    std::cout << "got out!\n";
     if (child) {
-      std::cout << "Child was found!, increasing count\n";
       iter = child;
       iter->count_++;
     }
     else {
-      std::cout << "child NOT found, making new node!\n";
       fp_node* newChild = new fp_node(item_path[i]);
-      if (!newChild){
-        std::cout << "ALLOC ERROR\n";
-      }
       newChild->parent_ = iter;
       iter->children_.push_back(newChild);
       iter = newChild;
