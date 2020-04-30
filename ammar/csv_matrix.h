@@ -220,7 +220,7 @@ void CSVMatrix<T>::InitMatrix(bool col_names) {
   }
   num_rows_ = rows;
   //std::cout << data_matrix_.size();
-  std::cout << rows << "\n"; 
+  //std::cout << rows << "\n"; 
   assert(data_matrix_.size() % num_rows_ == 0);
   num_columns_ = data_matrix_.size() / num_rows_;
 }

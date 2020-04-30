@@ -14,9 +14,9 @@ int main(int argc, const char** argv) {
   Stopwatch t;
   t.start();
 
-  const char* path = "data/small/groceryData.csv";
+  const char* path = "data/medium/transactions.csv";
   bool forced_load = true;
-  bool columns_present = true;
+  bool columns_present = false;
 
   try {
 
@@ -27,7 +27,7 @@ int main(int argc, const char** argv) {
     // Two-Pass over data:
     // First pass, calculate the support of each item
     // Second pass, sort based on support
-    int min_support = 300;
+    int min_support = 50;
     std::cout << "min_support:" <<  min_support << "\n";
     // Build the FP Tree
     FPGrowth fp(data_set, min_support);
