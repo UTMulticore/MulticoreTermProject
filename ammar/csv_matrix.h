@@ -8,7 +8,6 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -178,9 +177,6 @@ CSVMatrix<T>::CSVMatrix(const char* file_path, bool col_names,
                       num_columns_(0), is_loaded_(false) {
   
   assert(file_stream_.is_open());
-  if (!file_stream_.is_open())
-    throw std::filesystem::filesystem_error("file failed to open",  // Hmmm, should I, or leabe exceptions out?
-                                            std::error_code()); 
   file_byte_size_ = GetFileSize(file_path);
   if (!forced_load) 
     return;
