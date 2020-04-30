@@ -12,7 +12,7 @@
 
 
 
-fp_node* fp_node::containsItemAsChild(const std::string &item) {
+fp_node* fp_node::containsItemAsChild(const std::string& item) {
   for (auto& child : children_) {
     if (child->item_ == item)
       return child;
@@ -59,21 +59,25 @@ void FP_Tree::add(std::vector<std::string> item_path) {
   if (null_head_ == nullptr)
     null_head_ = new fp_node("NULL");
   fp_node* iter = null_head_;
+  std::cout << "NULL Head added\n";
 
   for (int i=0; i<item_path.size() && item_path[i].length() > 2; i++) {
     auto child = iter->containsItemAsChild(item_path[i]);
     if (child) {
+      std::cout << "Child was found!, increasing count\n";
       iter = child;
       iter->count_++;
     }
     else {
+      std::cout << "child NOT found, making new node!\n";
       fp_node* newChild = new fp_node(item_path[i]);
+      if (!newChild){
+        std::cout << "ALLOC ERROR\n";
+      }
       newChild->parent_ = iter;
       iter->children_.push_back(newChild);
       iter = newChild;
       addItemLink(newChild); // add item link
-
-      // SORTT ORDER SOMEHOW
     }
   }
 
