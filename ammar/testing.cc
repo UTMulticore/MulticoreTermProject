@@ -11,41 +11,36 @@
 
 
 int main(int argc, const char** argv) {
-  Stopwatch t;
-  t.start();
-
-  const char* path = "data/medium/transactions.csv";
+  // params
+  const char* path = "data/small/groceryData.csv";
   bool forced_load = true;
-  bool columns_present = false;
+  bool columns_present = true;
+  int min_support = 20;
 
-  try {
+  int num_threads = std::stoi(argv[1]);
 
-    CSVMatrix<std::string> data_set(path, columns_present, forced_load); 
-    data_set.removeColumn(0);
-    //data_set.dumpMatrix();
-
-    // Two-Pass over data:
-    // First pass, calculate the support of each item
-    // Second pass, sort based on support
-    int min_support = 50;
-    std::cout << "min_support:" <<  min_support << "\n";
-    // Build the FP Tree
-    FPGrowth fp(data_set, min_support);
-    // Query FP Tree -> Find a way to display the results
-    auto res = fp.mine();
-
-    std::cout << "RESULT:\n";
-    for (const auto& v : res) {
-      for (const auto& item : v) {
-        std::cout << item << " ";
-      }
-      std::cout << "\n";
-    }
-  } 
+  Stopwatch stopwatch;
+  stopwatch.start();
   
-  catch(std::exception& e) {
-    std::cout << e.what() << "\n";
-  }
+  // Load Data
+  CSVMatrix<std::string> data_set(path, columns_present, forced_load); 
+  data_set.removeColumn(0);
+  std::cout << "done!\n";
 
-  std::cout << t.now() << "milliseconds \n";
+  // Build the FP Tree
+  FPGrowth fp(data_set, min_support, num_threads);
+  std::cout << "time to mine!\n";
+  // Mine FP Tree -> Find a way to display the results
+  auto res = fp.mine();
+
+  std::cout << "RESULT:\n";
+  for (const auto& v : res) {
+    for (const auto& item : v) {
+      std::cout << item << " ";
+    }
+    std::cout << "\n";
+  }
+  
+
+  std::cout << stopwatch.now() << "milliseconds \n";
 }

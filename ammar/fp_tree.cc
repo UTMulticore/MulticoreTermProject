@@ -126,14 +126,12 @@ std::vector<std::string> getPath(fp_node* iter, int min_supp) {
 std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_supp) {
 
   if (tree.isEmpty()){
-    std::cout << "EMPTY\n";
     return {};
   }
 
   // Generate all combinations
   // and make sure support is greater than min support
   if (tree.hasOnePath()) {
-    std::cout << "HAS ONE PATH\n";
    // For each combination of nodes in the path P
     // generate pattern with support that is min support
     // and 
@@ -142,7 +140,6 @@ std::vector<std::vector<std::string>> mineTree(FP_Tree& tree, std::uint32_t min_
     return {ret};
   }
   else {
-    std::cout << "MORE THAN ONE PATH\n";
 
     std::vector<std::vector<std::string>> ret;
 
