@@ -62,7 +62,9 @@ void FP_Tree::add(std::vector<std::string> item_path) {
   std::cout << "NULL Head added\n";
   if (item_path.size() == 0)
     return;
+  std::cout << "Size > 0\n";
   for (int i=0; i<item_path.size() && item_path[i].length() > 2; i++) {
+    std::cout << "checking for children with same item name\n";
     auto child = iter->containsItemAsChild(item_path[i]);
     if (child) {
       std::cout << "Child was found!, increasing count\n";
